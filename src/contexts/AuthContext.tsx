@@ -17,6 +17,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
 
+  // 🔹 Load saved user on mount
   useEffect(() => {
     const savedUser = localStorage.getItem('weatherwise_user');
     if (savedUser) {
@@ -24,8 +25,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // 🔹 Login
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Simulate authentication
     const users = JSON.parse(localStorage.getItem('weatherwise_users') || '[]');
     const foundUser = users.find((u: any) => u.email === email && u.password === password);
 
@@ -35,14 +36,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('weatherwise_user', JSON.stringify(userWithoutPassword));
       return true;
     }
+
     return false;
   };
 
-  const signup = async (email: string, password: string, name: string, location: string): Promise<boolean> => {
+  // 🔹 Signup
+  const signup = async (
+    email: string,
+    password: string,
+    name: string,
+    location: string
+  ): Promise<boolean> => {
     const users = JSON.parse(localStorage.getItem('weatherwise_users') || '[]');
 
     if (users.find((u: any) => u.email === email)) {
-      return false;
+      return false; // email already exists
     }
 
     const newUser = {
@@ -51,6 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password,
       name,
       location,
+      profileImage: '', // 👈 add default image field
     };
 
     users.push(newUser);
@@ -62,16 +71,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  // 🔹 Logout
   const logout = () => {
     setUser(null);
     localStorage.removeItem('weatherwise_user');
   };
 
+  // 🔹 Update Profile (handles image, name, location, etc.)
   const updateProfile = (updates: Partial<User>) => {
     if (user) {
       const updatedUser = { ...user, ...updates };
       setUser(updatedUser);
       localStorage.setItem('weatherwise_user', JSON.stringify(updatedUser));
+
+      // Also update this user's record in the full users list
+      const users = JSON.parse(localStorage.getItem('weatherwise_users') || '[]');
+      const updatedUsers = users.map((u: any) =>
+        u.email === updatedUser.email ? { ...u, ...updates } : u
+      );
+      localStorage.setItem('weatherwise_users', JSON.stringify(updatedUsers));
     }
   };
 

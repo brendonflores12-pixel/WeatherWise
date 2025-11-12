@@ -136,9 +136,18 @@ export function Dashboard() {
                   className="flex items-center gap-2"
                   aria-label="Edit profile"
                 >
-                  <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-semibold">
-                    {user?.name?.charAt(0).toUpperCase()}
-                  </div>
+                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary flex items-center justify-center bg-primary text-white font-semibold">
+  {user?.profileImage ? (
+    <img
+      src={user.profileImage}
+      alt="Profile"
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    user?.name?.charAt(0).toUpperCase()
+  )}
+</div>
+
                   <span className="hidden md:inline">{user?.name}</span>
                 </Button>
 
